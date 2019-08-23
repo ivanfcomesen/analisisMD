@@ -5,7 +5,42 @@ CREATE TABLE Dim_Parqueo (
     Distrito varchar(30)
 );
 
+create table DimVehiculo(Tipo varchar(30),
+						Fabricante varchar(30),
+						Pais varchar(30),
+						Abreviatura varchar(5),
+						Region varchar(30),
+						Continente varchar(30),
+						EstratoAño varchar(30));
+
+create table Estratos (id INT not null IDENTITY primary key,Tipo varchar(30), Minimo int, maximo int, descripcion varchar(20));
+
+--DimParqueo
 SELECT  d.Descripcion as Distrito, c.Descripcion as Canton, prov.Descripcion as Provincia
 FROM Parqueo p, Distrito d, Canton c, Provincia prov
 where p.ConsecutivoDistrito = d.ConsecutivoDistrito and 
   c.IDCanton = prov.IDProvincia 
+
+--DIMVehiculo
+select b.Descripcion as TipoVeh, c.NombreFabricante, D.NombrePais, D.AbreviaturaPais, e.Descripcion as Región, f.Descripcion as Continente, g.descripcion as Estrato from Vehiculo a
+join TipoVehiculo b on a.IDTipoVehiculo = b.IDTipoVehiculo
+join Fabricante c on a.IDFabricante = c.IDFabricante
+join Pais d on c.IDPais = d.IDPais
+JOIN RegionContinente e on d.IDRegionContinente = e.IDRegionContinente
+join Continente f on e.IDContinente = f.IDContinente
+join (select * from Vehiculo a, Estratos b where b.Tipo = 'Año Auto' and a.Ano between b.Minimo and b.maximo) g on a.IDVehiculo = g.IDVehiculo;
+
+--Fact estacionamiento
+select a.TarifaBase as 'Tarifa Base', a.Ganancia, a.Mantenimiento, a.ImpVentas as 'Impuesto de ventas', a.TotalACobrar as Total,b.descripcion as 'Ingreso', c.descripcion as 'Salida',
+d.descripcion as 'Estadía', SUBSTRING(f.descripcion,1,2) as 'RestriccionEntrada', SUBSTRING(g.descripcion,1,2) as 'RestriccionSalida', 
+h.descripcion, isnull(i.NombreFeriado,'Día no feriado') as 'Día Entrada', isnull(j.NombreFeriado,'Día no feriado') as 'Día Salida'
+from Estacionamiento a 
+join Estratos b on DATEPART(HH,a.FechaHoraIngreso) between b.Minimo and b.maximo and b.Tipo = 'Hora'
+join Estratos c on DATEPART(HH,a.FechaHoraIngreso) between c.Minimo and c.maximo and c.Tipo = 'Hora'
+join Estratos d on DATEDIFF(MI,a.FechaHoraIngreso,a.FechaHoraSalida) between d.Minimo and d.maximo and d.Tipo='Minutos'
+join Vehiculo e on a.IDVehiculo = e.IDVehiculo
+join Estratos f on (select RIGHT(e.Placa,1)) between f.Minimo and f.maximo and f.Tipo ='Restriccion' and CHARINDEX(DATEName(DW,a.FechaHoraIngreso),f.descripcion) >0
+join Estratos g on (select RIGHT(e.Placa,1)) between g.Minimo and g.maximo and g.Tipo='Restriccion' and CHARINDEX(DATEName(DW,a.FechaHoraSalida),g.descripcion) >0
+join Estratos h on convert(int, a.Ganancia,0) between h.Minimo and h.maximo and h.Tipo='Ganancia'
+left join DiasFeriadosAnuales i on DATEPART(DD,a.FechaHoraIngreso) =i.DiaFeriado and DATEPART(MM,a.FechaHoraIngreso) = i.MesFeriado
+left join DiasFeriadosAnuales j on DATEPART(DD,a.FechaHoraIngreso) =j.DiaFeriado and DATEPART(MM,a.FechaHoraIngreso) = j.MesFeriado;
