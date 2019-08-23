@@ -1,0 +1,11 @@
+CREATE TABLE Dim_Parqueo (
+    IDParqueo int IDENTITY PRIMARY KEY,
+ Provincia varchar(30),
+    Canton varchar (30),
+    Distrito varchar(30)
+);
+
+SELECT  d.Descripcion as Distrito, c.Descripcion as Canton, prov.Descripcion as Provincia
+FROM Parqueo p, Distrito d, Canton c, Provincia prov
+where p.ConsecutivoDistrito = d.ConsecutivoDistrito and 
+  c.IDCanton = prov.IDProvincia 
