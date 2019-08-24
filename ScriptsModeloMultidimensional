@@ -13,7 +13,7 @@ create table DimVehiculo(Tipo varchar(30),
 						Continente varchar(30),
 						EstratoAño varchar(30));
 
-create table Estratos (id INT not null IDENTITY primary key,Tipo varchar(30), Minimo int, maximo int, descripcion varchar(20));
+create table Estratos (id INT not null IDENTITY primary key,Tipo varchar(30), Min int, Max int, descripcion varchar(20));
 
 --DimParqueo
 SELECT  d.Descripcion as Distrito, c.Descripcion as Canton, prov.Descripcion as Provincia
@@ -21,14 +21,14 @@ FROM Parqueo p, Distrito d, Canton c, Provincia prov
 where p.ConsecutivoDistrito = d.ConsecutivoDistrito and 
   c.IDCanton = prov.IDProvincia 
 
---DIMVehiculo
+---DIMVehiculo
 select b.Descripcion as TipoVeh, c.NombreFabricante, D.NombrePais, D.AbreviaturaPais, e.Descripcion as Región, f.Descripcion as Continente, g.descripcion as Estrato from Vehiculo a
 join TipoVehiculo b on a.IDTipoVehiculo = b.IDTipoVehiculo
 join Fabricante c on a.IDFabricante = c.IDFabricante
 join Pais d on c.IDPais = d.IDPais
 JOIN RegionContinente e on d.IDRegionContinente = e.IDRegionContinente
 join Continente f on e.IDContinente = f.IDContinente
-join (select * from Vehiculo a, Estratos b where b.Tipo = 'Año Auto' and a.Ano between b.Minimo and b.maximo) g on a.IDVehiculo = g.IDVehiculo;
+join (select * from Vehiculo a, Estratos b where b.Tipo = 'Año Auto' and a.Ano between b.Min and b.Max) g on a.IDVehiculo = g.IDVehiculo;
 
 --Fact estacionamiento
 select a.TarifaBase as 'Tarifa Base', a.Ganancia, a.Mantenimiento, a.ImpVentas as 'Impuesto de ventas', a.TotalACobrar as Total,b.descripcion as 'Ingreso', c.descripcion as 'Salida',
