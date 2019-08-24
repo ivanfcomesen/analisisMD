@@ -12,8 +12,13 @@ create table DimVehiculo(Tipo varchar(30),
 						Region varchar(30),
 						Continente varchar(30),
 						EstratoAño varchar(30));
-
-create table Estratos (id INT not null IDENTITY primary key,Tipo varchar(30), Min int, Max int, descripcion varchar(20));
+--Estratos
+CREATE TABLE [dbo].[Estratos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[Tipo] [varchar](30) NULL,
+	[Min] [int] NULL,
+	[Max] [int] NULL,
+	[Descripcion] [varchar](20) NULL);
 
 --DimParqueo
 SELECT  d.Descripcion as Distrito, c.Descripcion as Canton, prov.Descripcion as Provincia
